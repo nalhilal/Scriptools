@@ -22,11 +22,20 @@ python image_recognition.py <image_folder> <output_file.csv>
 """
 
 import argparse
+import csv
 import os
 
 from pathlib import Path
 from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
+
+
+def get_csv_path(directory):
+
+    directory_name = os.path.basename(directory)
+    catalog_filename = f"catalog-{directory_name}.csv"
+    catalog_path = os.path.join(directory, os.path.pardir, catalog_filename)
+    return catalog_path
 
 
 def check_if_directory(directory_path):
@@ -53,11 +62,22 @@ def find_image_files(directory):
 
 
 def generate_caption(image_path, processor, model):
+
     raw_image = Image.open(image_path).convert("RGB")
     inputs = processor(raw_image, return_tensors="pt").to("cuda")
     out = model.generate(**inputs, max_new_tokens=20)
     caption = processor.decode(out[0], skip_special_tokens=True)
     return caption if caption else None
+
+
+def write_output_to_csv(captions, csv_path):
+
+    with open(csv_path, "+a", newline="", encoding="utf-8") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        row = ""  # fill this
+        csvwriter.writerow(row)
+        csvfile.flush()
+    print(f"Catalog data written to file: {csv_path}")
 
 
 def main(directory):
@@ -68,9 +88,15 @@ def main(directory):
     ).to("cuda")
 
     image_files = find_image_files(directory)
+    csv_table = []
     for i, image_path in enumerate(image_files):
         caption = generate_caption(image_path, processor, model)
+        csv_row = [i, image_path, caption]
+        csv_table.append(csv_row)
         print(f"{i}: {image_path}: {caption}")
+
+    csv_file = get_csv_path(directory)
+    write_output_to_csv(csv_table, csv_file)
 
 
 if __name__ == "__main__":
