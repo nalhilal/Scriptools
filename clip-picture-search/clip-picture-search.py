@@ -26,6 +26,7 @@ import os
 
 from pathlib import Path
 from PIL import Image
+from transformers import BlipProcessor, BlipForConditionalGeneration
 
 
 def check_if_directory(directory_path):
@@ -51,10 +52,25 @@ def find_image_files(directory):
     return image_files
 
 
+def generate_caption(image_path, processor, model):
+    raw_image = Image.open(image_path).convert("RGB")
+    inputs = processor(raw_image, return_tensors="pt").to("cuda")
+    out = model.generate(**inputs, max_new_tokens=20)
+    caption = processor.decode(out[0], skip_special_tokens=True)
+    return caption if caption else None
+
+
 def main(directory):
 
+    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+    model = BlipForConditionalGeneration.from_pretrained(
+        "Salesforce/blip-image-captioning-large"
+    ).to("cuda")
+
     image_files = find_image_files(directory)
-    print(image_files)
+    for i, image_path in enumerate(image_files):
+        caption = generate_caption(image_path, processor, model)
+        print(f"{i}: {image_path}: {caption}")
 
 
 if __name__ == "__main__":
