@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
 
-"""
-**Image Recognition Script**
+# Image Recognition Script
 
-This script searches through a folder of images and identifies the objects within them.
-It then saves the filename and a description of the objects found in a CSV file.
+# Author: Nasser Al-Hilal
+# Date: 16 Feb 2024
+# Version: 1.0
 
-**Author:** Nasser Al-Hilal
-**Date:** 16 Feb 2024
-**Version:** 1.0
+# Requirements:
+# - Pytorch: install from https://pytorch.org/get-started/locally/
+# - Pillow (image processing)
+# - Tranformers (Hugging face model interaction)
+# - argparse, csv, os, pathlib: system libs
 
-**Requirements:**
-* Python 3
-* OpenCV (for image processing)
-* TensorFlow or PyTorch (for object detection)
-* pandas (for CSV handling)
+# Usage:
+# python clip-picture-search.py <image_folder>
 
-**Usage:**
-```python
-python image_recognition.py <image_folder> <output_file.csv>
-"""
+# Import necessary libraries
 
 import argparse
 import csv
@@ -32,7 +28,8 @@ from transformers import BlipProcessor, BlipForConditionalGeneration
 
 def get_csv_path(directory):
 
-    directory_name = os.path.basename(directory)
+    full_path = os.path.abspath(directory)
+    directory_name = os.path.basename(full_path)
     catalog_filename = f"catalog-{directory_name}.csv"
     catalog_path = os.path.join(directory, os.path.pardir, catalog_filename)
     return catalog_path
@@ -70,12 +67,12 @@ def generate_caption(image_path, processor, model):
     return caption if caption else None
 
 
-def write_output_to_csv(captions, csv_path):
+def write_output_to_csv(csv_table, csv_path):
 
     with open(csv_path, "+a", newline="", encoding="utf-8") as csvfile:
         csvwriter = csv.writer(csvfile)
-        row = ""  # fill this
-        csvwriter.writerow(row)
+        for captions_row in csv_table:
+            csvwriter.writerow(captions_row)
         csvfile.flush()
     print(f"Catalog data written to file: {csv_path}")
 
