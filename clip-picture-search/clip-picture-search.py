@@ -7,7 +7,7 @@
 # Version: 1.1
 
 # Requirements:
-# - Pytorch: install from https://pytorch.org/get-started/locally/
+# - Pytorch: (already in requiremetns.txt or can install from https://pytorch.org/get-started/locally/)
 # - Pillow (image processing)
 # - Tranformers (Hugging face model interaction)
 # - argparse, csv, os, pathlib: system libs
