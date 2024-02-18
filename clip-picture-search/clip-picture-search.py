@@ -83,7 +83,6 @@ def generate_caption(image_path, processor, model, device, model_name):
             pixel_values = inputs.pixel_values
             generated_ids = model.generate(pixel_values=pixel_values, max_length=50)
             caption = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-            print(caption)
     except Exception as e:
         print(f"Error generating caption for {image_path}: {e}")
         return None
